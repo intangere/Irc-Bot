@@ -40,14 +40,6 @@
 (defn recieve [conn]
   (conn.recv 1024))
 
-;Main loop to handle join, ping, commands
-(defn parse [conn username chan data]
-  (if (in (+ " 376 " username) data.value)
-    (do (send conn.value (build-join chan)))
-  (if (.startswith data.value "PING :")
-    (do (setv hash (.strip (get (.split data.value "PING :") 1))))
-      (send conn.value (build-ping hash)))))
-
 (defn connect [host port]
   (setv temp-conn (socket.socket socket.AF_INET socket.SOCK_STREAM))
   (temp-conn.connect (, host port))
@@ -59,6 +51,14 @@
 (setv safe-parse (maybe parse))
 (setv safe-encode (maybe encode))
 (setv safe-decode (maybe decode))
+
+;Main loop to handle join, ping, commands
+(defn parse [conn username chan data]
+  (if (in (+ " 376 " username) data.value)
+    (do (send conn.value (build-join chan)))
+  (if (.startswith data.value "PING :")
+    (do (setv hash (.strip (get (.split data.value "PING :") 1))))
+      (send conn.value (build-ping hash)))))
 
 (defclass Irc [object]
   (defn --init-- [self username host port]
