@@ -60,8 +60,8 @@
 (setv safe-encode (maybe encode))
 (setv safe-decode (maybe decode))
 
-
 (defclass Irc [object]
+
   (defn --init-- [self username host port]
     (setv self.username username)
     (setv self.host host)
@@ -91,5 +91,7 @@
               (safe-parse self.conn self.username "#bighugetesthy" data))))
           (log "CLOSED" "Connection closed by remote host")))))
     
-(setv irc (Irc "HyBOT" "irc.freenode.net" 6667))
-(irc.connect)   
+(if (= __name__ "__main__") 
+  (do
+    (setv irc (Irc "HyBOT" "irc.freenode.net" 6667))
+    (irc.connect)))
