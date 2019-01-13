@@ -22,9 +22,10 @@
 (defn build-ping [hash]
   (.format "PING :{0}" #* (, hash)))
 
+(setv build-version "VERSION :HyBOT")
+
 (defn build-message [channel message]
   (.format "PRIVMSG {0} :{1}{2}" #* (, channel message delimiter)))
-
 
 ;Redefined functions that could fail using the maybe monad
 (defn decode [data]
@@ -42,14 +43,13 @@
 ;Main loop to handle join, ping, commands
 (defn parse [conn username chan data]
   (if (in (+ " 376 " username) data.value)
-    (do (send conn.value (build-join chan))))
+    (do (send conn.value (build-join chan)))
   (if (.startswith data.value "PING :")
     (do (setv hash (.strip (get (.split data.value "PING :") 1))))
-      (send conn.value (build-ping hash))))
+      (send conn.value (build-ping hash)))))
 
 (defn connect [host port]
   (setv temp-conn (socket.socket socket.AF_INET socket.SOCK_STREAM))
-  (temp-conn.settimeout 10)
   (temp-conn.connect (, host port))
   temp-conn)
 
@@ -83,7 +83,7 @@
         (self.send (build-user self.username))
         (while connected
           (setv data (safe-decode (safe-recv self.conn.value)))
-          (if-not data 
+          (if-not data
             (setv connected False)
             (do 
               (log "RECV" data.value)
